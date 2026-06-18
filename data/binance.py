@@ -8,7 +8,10 @@ import time
 FAPI = "https://fapi.binance.com"
 
 _session = requests.Session()
-_session.headers.update({"User-Agent": "TradingScreener/1.0"})
+_session.headers.update({
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Accept": "application/json",
+})
 
 STABLECOINS = {
     "USDCUSDT", "BUSDUSDT", "TUSDUSDT", "FDUSDUSDT",
@@ -16,13 +19,21 @@ STABLECOINS = {
 }
 
 
-def _get(endpoint: str, params: dict = None, timeout: int = 10) -> dict | list | None:
+_last_error: str = ""
+
+def _get(endpoint: str, params: dict = None, timeout: int = 15) -> dict | list | None:
+    global _last_error
     try:
         r = _session.get(f"{FAPI}{endpoint}", params=params, timeout=timeout)
         r.raise_for_status()
+        _last_error = ""
         return r.json()
-    except Exception:
+    except Exception as e:
+        _last_error = str(e)
         return None
+
+def get_last_error() -> str:
+    return _last_error
 
 
 # ── Тикеры ────────────────────────────────────────────────────────────────────

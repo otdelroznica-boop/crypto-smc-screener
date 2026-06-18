@@ -987,7 +987,16 @@ tab_sig, tab_chart, tab_wave, tab_pred, tab_sent, tab_stat = st.tabs([
 # ───────────────────────────────────────────────────────────
 with tab_sig:
     if df_sig.empty:
-        st.info("Нет данных. Проверьте соединение или снизьте пороги.")
+        try:
+            from data.binance import get_last_error
+            _err = get_last_error()
+        except Exception:
+            _err = ""
+        st.error("❌ Нет данных от Binance API.")
+        if _err:
+            st.code(_err, language="text")
+        else:
+            st.info("Проверьте соединение или снизьте пороги фильтров в сайдбаре.")
         st.stop()
 
     # Фильтры
