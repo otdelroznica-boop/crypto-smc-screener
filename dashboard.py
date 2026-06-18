@@ -134,9 +134,12 @@ if "inv_analysis_sym" not in st.session_state: st.session_state.inv_analysis_sym
 with st.sidebar:
     st.markdown("## ⚙️ Настройки")
 
+    _default_exchange = cfg.get("exchange", "binance")
+    _exch_options     = ["Bybit Futures", "Binance Futures"] if _default_exchange == "bybit" \
+                        else ["Binance Futures", "Bybit Futures"]
     exchange_label = st.selectbox(
         "Биржа",
-        ["Binance Futures", "Bybit Futures"],
+        _exch_options,
         help="Binance — максимальная ликвидность. Bybit — альтернатива с похожим API.",
     )
     exchange = "bybit" if "Bybit" in exchange_label else "binance"
@@ -987,16 +990,18 @@ tab_sig, tab_chart, tab_wave, tab_pred, tab_sent, tab_stat = st.tabs([
 # ───────────────────────────────────────────────────────────
 with tab_sig:
     if df_sig.empty:
+        _err = ""
         try:
-            from data.binance import get_last_error
-            _err = get_last_error()
+            if cfg.get("exchange","binance") == "binance":
+                from data.binance import get_last_error
+                _err = get_last_error()
         except Exception:
-            _err = ""
-        st.error("❌ Нет данных от Binance API.")
+            pass
+        _exch_name = cfg.get("exchange","binance").capitalize()
+        st.error(f"❌ Нет данных от {_exch_name} API.")
         if _err:
             st.code(_err, language="text")
-        else:
-            st.info("Проверьте соединение или снизьте пороги фильтров в сайдбаре.")
+        st.info("Проверьте соединение или снизьте пороги фильтров в сайдбаре.")
         st.stop()
 
     # Фильтры
