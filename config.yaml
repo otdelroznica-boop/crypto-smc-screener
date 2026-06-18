@@ -1,0 +1,56 @@
+# ═══════════════════════════════════════════════════
+#  TRADING SCREENER — КОНФИГ
+#  Все пороги можно менять и в сайдбаре UI
+# ═══════════════════════════════════════════════════
+
+exchange: binance          # binance | bybit (bybit — в разработке)
+update_interval: 60        # секунды между обновлениями
+
+# ── Фильтры рынка ─────────────────────────────────
+market:
+  min_volume_24h: 5000000  # мин. объём 24ч в USD
+  top_n: 60                # сканировать топ N монет по объёму
+  exclude_stablecoins: true
+  exclude_symbols: []      # например: [BTCUSDT, ETHUSDT]
+
+# ── Скринеры ──────────────────────────────────────
+screeners:
+  pump:
+    enabled: true
+    min_price_change: 3.0   # % изменение цены (любой ТФ)
+
+  open_interest:
+    enabled: true
+    min_oi_change: 5.0      # % рост ОИ за период
+    oi_period: "5m"         # период: 5m | 15m | 30m | 1h | 4h
+    oi_lookback: 6          # кол-во периодов назад для сравнения
+
+  cvd:
+    enabled: true
+    interval: "5m"          # таймфрейм CVD
+    lookback: 20            # кол-во свечей
+
+  funding:
+    enabled: true
+    alert_above: 0.05       # % ставки фандинга (абсолютное значение)
+
+# ── Скоринг ───────────────────────────────────────
+# Каждый сигнал добавляет очки:
+# pump       +1
+# oi_up      +2  (только если цена тоже растёт)
+# cvd_bull   +1
+# funding    +1  (экстремальный фандинг)
+scoring:
+  min_score_alert: 3        # мин. Score для Telegram-алерта
+
+# ── Telegram ──────────────────────────────────────
+alerts:
+  telegram:
+    enabled: false
+    bot_token: ""           # токен бота от @BotFather
+    chat_id: ""             # id чата или канала
+
+# ── USDT Dominance ────────────────────────────────
+usdt_dominance:
+  bullish_below: 4.8        # % — ниже этого = бычий сигнал
+  bearish_above: 6.0        # % — выше этого = медвежий сигнал
